@@ -1,4 +1,4 @@
 export interface Equality {
-    isEqual(other: Object): boolean;
-    getHashCode(): number;
+  isEqual(other: Object): boolean;
+  getHashCode(): number;
 }

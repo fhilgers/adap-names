@@ -1,121 +1,119 @@
 import { Coordinate } from "./Coordinate";
 
 export class PolarCoordinate implements Coordinate {
+  private r: number = 0;
+  private phi: number = 0;
 
-    private r: number = 0;
-    private phi: number = 0;
+  constructor(r?: number, phi?: number) {
+    this.initialize(r, phi);
+  }
 
-    constructor(r?: number, phi?: number) {
-        this.initialize(r, phi);
-    }
+  public static getOrigin(): Coordinate {
+    return new PolarCoordinate(0, 0);
+  }
 
-    public static getOrigin(): Coordinate {
-        return new PolarCoordinate(0, 0);
-    }
-
-    public initialize(r?: number, phi?: number): void {
-        if (r != undefined) {
-            this.setR(r);
-        }
-
-        if (phi != undefined) {
-            this.setPhi(phi);
-        }
+  public initialize(r?: number, phi?: number): void {
+    if (r != undefined) {
+      this.setR(r);
     }
 
-    public toString(): string {
-        return this.asDataString();
+    if (phi != undefined) {
+      this.setPhi(phi);
     }
+  }
 
-    public asDataString(): string {
-        return this.getX() + "#" + this.getY();
-    }
+  public toString(): string {
+    return this.asDataString();
+  }
 
-    public isEqual(other: Coordinate): boolean {
-        return (this.getX() == other.getX()) && (this.getY() == other.getY());
-    }
+  public asDataString(): string {
+    return this.getX() + "#" + this.getY();
+  }
 
-    public getHashCode(): number {
-        let hashCode: number = 0;
-        const s: string = this.asDataString();
-        for (let i = 0; i < s.length; i++) {
-            let c = s.charCodeAt(i);
-            hashCode = (hashCode << 5) - hashCode + c;
-            hashCode |= 0;
-        }
-        return hashCode;
-    }
+  public isEqual(other: Coordinate): boolean {
+    return this.getX() == other.getX() && this.getY() == other.getY();
+  }
 
-    public clone(): Coordinate {
-        return new PolarCoordinate(this.getX(), this.getY());
+  public getHashCode(): number {
+    let hashCode: number = 0;
+    const s: string = this.asDataString();
+    for (let i = 0; i < s.length; i++) {
+      let c = s.charCodeAt(i);
+      hashCode = (hashCode << 5) - hashCode + c;
+      hashCode |= 0;
     }
+    return hashCode;
+  }
 
-    public reset(): void {
-        this.initialize(0, 0);
-    }
-    
-    public getX(): number {
-        return this.doGetR() * Math.cos(this.doGetPhi());
-    }
-    
-    public setX(x: number): void {
-        let y: number = this.doGetR() * Math.cos(this.doGetPhi());
-        this.doSetR(Math.hypot(x, y));
-        this.doSetPhi(Math.atan2(y, x));       
-    }
-    
-    public getY(): number {
-        return this.doGetR() * Math.sin(this.doGetPhi());
-    }
+  public clone(): Coordinate {
+    return new PolarCoordinate(this.getX(), this.getY());
+  }
 
-    public setY(y: number): void {
-        let x: number = this.doGetR() * Math.sin(this.doGetPhi());
-        this.doSetR(Math.hypot(x, y));
-        this.doSetPhi(Math.atan2(y, x));       
-    }
+  public reset(): void {
+    this.initialize(0, 0);
+  }
 
-    public calcStraightLineDistance(other: Coordinate): number {
-        let deltaX: number = Math.abs(other.getX() - this.getX());
-        let deltaY: number = Math.abs(other.getY() - this.getY());
-        return Math.hypot(deltaX, deltaY);
-    }
-    
-    public getR(): number {
-        return this.doGetR();
-    }
+  public getX(): number {
+    return this.doGetR() * Math.cos(this.doGetPhi());
+  }
 
-    protected doGetR(): number {
-        return this.r;
-    }
+  public setX(x: number): void {
+    let y: number = this.doGetR() * Math.cos(this.doGetPhi());
+    this.doSetR(Math.hypot(x, y));
+    this.doSetPhi(Math.atan2(y, x));
+  }
 
-    public setR(r: number): void {
-        this.doSetR(r);
-    }
+  public getY(): number {
+    return this.doGetR() * Math.sin(this.doGetPhi());
+  }
 
-    protected doSetR(r: number): void {
-        this.r = r;     
-    }
+  public setY(y: number): void {
+    let x: number = this.doGetR() * Math.sin(this.doGetPhi());
+    this.doSetR(Math.hypot(x, y));
+    this.doSetPhi(Math.atan2(y, x));
+  }
 
-    public getPhi(): number {
-        return this.doGetPhi();
-    }
+  public calcStraightLineDistance(other: Coordinate): number {
+    let deltaX: number = Math.abs(other.getX() - this.getX());
+    let deltaY: number = Math.abs(other.getY() - this.getY());
+    return Math.hypot(deltaX, deltaY);
+  }
 
-    protected doGetPhi(): number {
-        return this.phi;
-    }
+  public getR(): number {
+    return this.doGetR();
+  }
 
-    public setPhi(phi: number): void {
-        this.doSetPhi(phi);
-    }
+  protected doGetR(): number {
+    return this.r;
+  }
 
-    protected doSetPhi(phi: number): void {
-        this.phi = phi;   
-    }
-    
-    public calcGreatCircleDistance(other: Coordinate): number {
-        let realR = Math.min(this.doGetR(), other.getR());
-        let deltaPhi = Math.abs(other.getPhi() - this.doGetPhi());
-        return realR * deltaPhi;
-    }
+  public setR(r: number): void {
+    this.doSetR(r);
+  }
 
+  protected doSetR(r: number): void {
+    this.r = r;
+  }
+
+  public getPhi(): number {
+    return this.doGetPhi();
+  }
+
+  protected doGetPhi(): number {
+    return this.phi;
+  }
+
+  public setPhi(phi: number): void {
+    this.doSetPhi(phi);
+  }
+
+  protected doSetPhi(phi: number): void {
+    this.phi = phi;
+  }
+
+  public calcGreatCircleDistance(other: Coordinate): number {
+    let realR = Math.min(this.doGetR(), other.getR());
+    let deltaPhi = Math.abs(other.getPhi() - this.doGetPhi());
+    return realR * deltaPhi;
+  }
 }
