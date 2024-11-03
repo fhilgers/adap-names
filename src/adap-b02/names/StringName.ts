@@ -1,4 +1,5 @@
 import { Name, DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "./Name";
+import { joinUnescapedComponents, splitEscapedComponents, escape, unescape, checkValid, checkEscaped } from "./Util";
 
 export class StringName implements Name {
 
@@ -8,51 +9,92 @@ export class StringName implements Name {
     protected length: number = 0;
 
     constructor(other: string, delimiter?: string) {
-        throw new Error("needs implementation");
+        this.delimiter = delimiter || this.delimiter;
+        
+        const parts = splitEscapedComponents(other, this.delimiter);
+        this.length = parts.length;
+        this.name = joinUnescapedComponents(parts, this.delimiter);
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
+        return this.name.replaceAll(ESCAPE_CHARACTER, "")
     }
 
     public asDataString(): string {
-        throw new Error("needs implementation");
+        return this.project((parts) => joinUnescapedComponents(parts, DEFAULT_DELIMITER), false)
     }
 
     public isEmpty(): boolean {
-        throw new Error("needs implementation");
+        return this.getNoComponents() == 0;
     }
 
     public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
+        return this.delimiter;
     }
 
     public getNoComponents(): number {
-        throw new Error("needs implementation");
+        return this.length;
     }
 
     public getComponent(x: number): string {
-        throw new Error("needs implementation");
+        this.checkBounds(x, 0, this.getNoComponents());
+        return this.project((parts) => escape(parts[x], this.delimiter), false)
     }
 
     public setComponent(n: number, c: string): void {
-        throw new Error("needs implementation");
+        this.checkBounds(n, 0, this.getNoComponents());
+        this.project((parts) => parts[n] = unescape(c, this.delimiter))
     }
 
     public insert(n: number, c: string): void {
-        throw new Error("needs implementation");
+        this.checkBounds(n, 0, this.getNoComponents() + 1);
+        this.project((parts) => parts.splice(n, 0, c))
     }
 
     public append(c: string): void {
-        throw new Error("needs implementation");
+        this.project((parts) => parts.push(unescape(c, this.delimiter)))
     }
 
     public remove(n: number): void {
-        throw new Error("needs implementation");
+        this.checkBounds(n, 0, this.getNoComponents());
+        this.project((parts) => parts.splice(n, 1))
     }
 
     public concat(other: Name): void {
-        throw new Error("needs implementation");
+        let left: string[] = [];
+        let right: string[] = [];
+        
+        if (this.getNoComponents() > 0) {
+            left = splitEscapedComponents(this.name, this.delimiter);
+        }
+        
+        if (other.getNoComponents() > 0) {
+            right = splitEscapedComponents(other.asDataString(), DEFAULT_DELIMITER);
+        }
+
+        let joined = [...left, ...right];
+        this.name = joinUnescapedComponents(joined, this.delimiter);
+        this.length = joined.length;
+    }
+    
+    private project<T>(fn: (components: string[]) => T, apply: boolean = true): T {
+        let parts: string[] = [];
+        if (this.getNoComponents() > 0) {
+            parts = splitEscapedComponents(this.name, this.delimiter);
+        }
+        const result = fn(parts);
+        if (apply) {
+            this.name = joinUnescapedComponents(parts, this.delimiter);
+            this.length = parts.length;
+        }
+        
+        return result;
+    }
+    
+    private checkBounds(i: number, left: number, right: number) {
+        if (i < left || i >= right) {
+            throw new Error("index out of bounds")
+        }
     }
 
 }
