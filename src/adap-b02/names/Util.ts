@@ -36,14 +36,17 @@ export function unescape(component: string, delimiter: string) {
     checkValid(component, delimiter);
     checkEscaped(component, delimiter);
     
-    const nextEscaped = false;
+    let nextEscaped = false;
     const collector = [];
-    
+
     for (const c of component) {
-        if (c == ESCAPE_CHARACTER) {
-            // ignore, checkEscaped guarantees, that the next char can only be the delimiter
+        if (nextEscaped) {
+            nextEscaped = false;
+            collector.push(c);
+        } else if (c == ESCAPE_CHARACTER) {
+            nextEscaped = true;
         } else {
-            collector.push(c)
+            collector.push(c);
         }
     }
     
@@ -57,7 +60,7 @@ export function escape(component: string, delimiter: string) {
     const collector = [];
     
     for (const c of component) {
-        if (c == delimiter) {
+        if (c == delimiter || c == ESCAPE_CHARACTER) {
             collector.push(ESCAPE_CHARACTER + c)
         } else {
             collector.push(c)
@@ -91,11 +94,8 @@ export function isValid(component: string, delimiter: string) {
     for (const c of component) {
         if (nextEscaped) {
             
-            if (c == ESCAPE_CHARACTER) {
-                // The escape character can't be set, the delimiter character can.
-                return false;
-            } else if (c != delimiter) {
-                // Cannot escape non delimiter
+            // Only escape delimiter or escape char
+            if (c != delimiter && c != ESCAPE_CHARACTER) {
                 return false;
             }
             
@@ -108,7 +108,7 @@ export function isValid(component: string, delimiter: string) {
         }
     }
     
-    return !nextEscaped;
+    return true;
 }
 
 export function isNotEscaped(component: string, delimiter: string) {
@@ -121,15 +121,15 @@ export function isEscaped(component: string, delimiter: string) {
     for (const c of component) {
         if (nextEscaped) {
             nextEscaped = false;
-
         } else {
             if (c == ESCAPE_CHARACTER) {
                 nextEscaped = true;
-            } else if (c == delimiter) {
+            } else if (c == delimiter || c == ESCAPE_CHARACTER) {
+                // delimiter and escape chars have to be escaped
                 return false;
             }
         }
     }
     
-    return true;
+    return !nextEscaped;
 }

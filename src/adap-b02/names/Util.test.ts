@@ -31,12 +31,10 @@ describe("Escaping", () => {
             expect(isValid(`${ESCAPE_CHARACTER}a`, delimiter)).toBe(false);
         })
 
-        it("escaping nothing", () => {
-            expect(isValid(`${ESCAPE_CHARACTER}`, delimiter)).toBe(false);
-        })
-
         it("escaping escape", () => {
-            expect(isValid(`${ESCAPE_CHARACTER}${ESCAPE_CHARACTER}`, delimiter)).toBe(false);
+            expect(isValid(`${ESCAPE_CHARACTER}${ESCAPE_CHARACTER}`, delimiter)).toBe(true);
+            expect(escape(`${ESCAPE_CHARACTER}`, delimiter)).toBe(`${ESCAPE_CHARACTER}${ESCAPE_CHARACTER}`);
+            expect(unescape(`${ESCAPE_CHARACTER}${ESCAPE_CHARACTER}`, delimiter)).toBe(`${ESCAPE_CHARACTER}`)
         })
     })
 
@@ -89,6 +87,8 @@ describe("Escaping", () => {
         expect(splitEscapedComponents("\\.oss", delimiter)).toEqual([".oss"])
         expect(splitEscapedComponents("oss\\.", delimiter)).toEqual(["oss."])
         
+        expect(splitEscapedComponents("\\\\.oss", delimiter)).toEqual(["\\", "oss"])
+        expect(splitEscapedComponents("oss\\\\.", delimiter)).toEqual(["oss\\", ""])
     })
     
     it("join fixtures", () => {
@@ -105,5 +105,7 @@ describe("Escaping", () => {
         expect(joinUnescapedComponents(["", "."], delimiter)).toBe(".\\.")
         expect(joinUnescapedComponents([".oss"], delimiter)).toBe("\\.oss")
         expect(joinUnescapedComponents(["oss."], delimiter)).toBe("oss\\.")
+
+        expect(joinUnescapedComponents(["\\", "\\"], delimiter)).toBe("\\\\.\\\\")
     })
 })
