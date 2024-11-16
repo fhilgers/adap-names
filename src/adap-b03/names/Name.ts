@@ -48,5 +48,4 @@ export interface Name extends Printable, Cloneable, Equality {
     remove(i: number): void;
     
     concat(other: Name): void;
-    
 }
