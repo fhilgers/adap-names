@@ -1,43 +1,48 @@
-import { Name, DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "./Name";
+import { Name, DEFAULT_DELIMITER } from "./Name";
+
+import { joinUnescapedComponents, escape, getUnescapedComponents, getHashCode } from "./Util"
 
 export abstract class AbstractName implements Name {
 
     protected delimiter: string = DEFAULT_DELIMITER;
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
-        throw new Error("needs implementation");
+        this.checkDelimiter(delimiter);
+        this.delimiter = delimiter;
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
+        this.checkDelimiter(delimiter);
+        return getUnescapedComponents(this).join(delimiter);
     }
 
     public toString(): string {
-        throw new Error("needs implementation");
+        return this.asDataString()
     }
 
     public asDataString(): string {
-        throw new Error("needs implementation");
+        return joinUnescapedComponents(getUnescapedComponents(this), this.getDelimiterCharacter());
     }
 
     public isEqual(other: Name): boolean {
-        throw new Error("needs implementation");
+        return this.asDataString() == other.asDataString()
+            && this.getDelimiterCharacter() == other.getDelimiterCharacter();
     }
 
     public getHashCode(): number {
-        throw new Error("needs implementation");
+        return getHashCode(this.asDataString() + this.getDelimiterCharacter())
     }
 
     public clone(): Name {
-        throw new Error("needs implementation");
+        return Object.create(this)
     }
 
     public isEmpty(): boolean {
-        throw new Error("needs implementation");
+        return this.getNoComponents() == 0;
     }
 
     public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
+        return this.delimiter;
     }
 
     abstract getNoComponents(): number;
@@ -50,7 +55,16 @@ export abstract class AbstractName implements Name {
     abstract remove(i: number): void;
 
     public concat(other: Name): void {
-        throw new Error("needs implementation");
+        const otherComponents = getUnescapedComponents(other);
+
+        for (const component of otherComponents) {
+            this.append(escape(component, this.getDelimiterCharacter()))
+        }
     }
 
+    private checkDelimiter(delim: string) {
+        if (delim.length != 1) {
+            throw new Error("delimiter can only contain a single char")
+        }
+    }
 }
