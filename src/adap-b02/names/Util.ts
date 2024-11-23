@@ -1,4 +1,4 @@
-import { ESCAPE_CHARACTER } from "./Name";
+import { ESCAPE_CHARACTER } from "../common/Printable";
 
 export function splitEscapedComponents(components: string, delimiter: string) {
     const parts = [];

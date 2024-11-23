@@ -1,5 +1,6 @@
 import { fc, it } from "@fast-check/vitest";
-import { DEFAULT_DELIMITER, ESCAPE_CHARACTER, Name } from "./Name";
+import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
+import { Name } from "./Name";
 import { describe, expect } from "vitest";
 import { deepArrayEquals, escape, getHashCode, getUnescapedComponents, isEscaped, joinUnescapedComponents, unescape } from "./Util";
 import { StringName } from "./StringName";

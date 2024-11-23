@@ -1,22 +1,21 @@
 import { AbstractName } from "./AbstractName";
-
 import { escape, unescape, joinUnescapedComponents, splitEscapedComponents } from "./Util";
 
 export class StringName extends AbstractName {
 
     protected name: string = "";
-    protected length: number = 0;
+    protected noComponents: number = 0;
 
     constructor(other: string, delimiter?: string) {
         super(delimiter);
         
         const parts = splitEscapedComponents(other, this.getDelimiterCharacter());
-        this.length = parts.length;
+        this.noComponents = parts.length;
         this.name = joinUnescapedComponents(parts, this.getDelimiterCharacter());
     }
 
     getNoComponents(): number {
-        return this.length;
+        return this.noComponents;
     }
 
     getComponent(x: number): string {
@@ -51,7 +50,7 @@ export class StringName extends AbstractName {
         const result = fn(parts);
         if (apply) {
             this.name = joinUnescapedComponents(parts, this.getDelimiterCharacter());
-            this.length = parts.length;
+            this.noComponents = parts.length;
         }
         
         return result;

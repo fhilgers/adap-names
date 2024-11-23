@@ -1,3 +1,5 @@
+import { Equality } from "../common/Equality";
+import { Cloneable } from "../common/Cloneable";
 import { Printable } from "../common/Printable";
 
 /**
@@ -12,7 +14,7 @@ import { Printable } from "../common/Printable";
  * "///" is a name with four empty components and the delimiter character '/'.
  * "Oh\.\.\." is a name with one component, if the delimiter character is '.'.
  */
-export interface Name extends Printable {
+export interface Name extends Cloneable, Printable, Equality {
 
     /**
      * Returns true, if number of components == 0; else false
