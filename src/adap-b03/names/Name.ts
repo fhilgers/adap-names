@@ -2,9 +2,6 @@ import { Equality } from "../common/Equality";
 import { Cloneable } from "../common/Cloneable";
 import { Printable } from "../common/Printable";
 
-export const DEFAULT_DELIMITER: string = '.';
-export const ESCAPE_CHARACTER = '\\';
-
 /**
  * A name is a sequence of string components separated by a delimiter character.
  * Special characters within the string may need masking, if they are to appear verbatim.
@@ -17,17 +14,12 @@ export const ESCAPE_CHARACTER = '\\';
  * "///" is a name with four empty components and the delimiter character '/'.
  * "Oh\.\.\." is a name with one component, if the delimiter character is '.'.
  */
-export interface Name extends Printable, Cloneable, Equality {
+export interface Name extends Cloneable, Printable, Equality {
 
     /**
      * Returns true, if number of components == 0; else false
      */
     isEmpty(): boolean;
-
-    /** 
-     * Returns delimiter character used by Name instances
-     */
-    getDelimiterCharacter(): string;
 
     /** 
      * Returns number of components in Name instance

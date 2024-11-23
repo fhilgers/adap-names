@@ -1,6 +1,6 @@
 import { describe, expect } from "vitest";
 import { checkEscaped, checkNotEscaped, escape, isEscaped, isNotEscaped, isValid, joinUnescapedComponents, splitEscapedComponents, unescape } from "./Util";
-import { ESCAPE_CHARACTER } from "./Name";
+import { ESCAPE_CHARACTER } from "../common/Printable";
 import { fc, it } from "@fast-check/vitest";
 
 const delimiter = fc.string({ maxLength: 1, minLength: 1 }).filter(d => d != ESCAPE_CHARACTER);

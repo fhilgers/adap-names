@@ -1,5 +1,5 @@
-import { Name, DEFAULT_DELIMITER } from "./Name";
-
+import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
+import { Name } from "./Name";
 import { joinUnescapedComponents, escape, getUnescapedComponents, getHashCode } from "./Util"
 
 export abstract class AbstractName implements Name {
@@ -9,6 +9,10 @@ export abstract class AbstractName implements Name {
     constructor(delimiter: string = DEFAULT_DELIMITER) {
         this.checkDelimiter(delimiter);
         this.delimiter = delimiter;
+    }
+
+    public clone(): Name {
+        return Object.create(this)
     }
 
     public asString(delimiter: string = this.delimiter): string {
@@ -31,10 +35,6 @@ export abstract class AbstractName implements Name {
 
     public getHashCode(): number {
         return getHashCode(this.asDataString() + this.getDelimiterCharacter())
-    }
-
-    public clone(): Name {
-        return Object.create(this)
     }
 
     public isEmpty(): boolean {

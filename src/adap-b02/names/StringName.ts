@@ -1,18 +1,18 @@
-import { Name, DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "./Name";
+import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
+import { Name } from "./Name";
 import { joinUnescapedComponents, splitEscapedComponents, escape, unescape, checkValid, checkEscaped } from "./Util";
 
 export class StringName implements Name {
 
     protected delimiter: string = DEFAULT_DELIMITER;
-
     protected name: string = "";
-    protected length: number = 0;
+    protected noComponents: number = 0;
 
     constructor(other: string, delimiter?: string) {
         this.delimiter = delimiter || this.delimiter;
         
         const parts = splitEscapedComponents(other, this.delimiter);
-        this.length = parts.length;
+        this.noComponents = parts.length;
         this.name = joinUnescapedComponents(parts, this.delimiter);
     }
 
@@ -33,7 +33,7 @@ export class StringName implements Name {
     }
 
     public getNoComponents(): number {
-        return this.length;
+        return this.noComponents;
     }
 
     public getComponent(x: number): string {
@@ -74,7 +74,7 @@ export class StringName implements Name {
 
         let joined = [...left, ...right];
         this.name = joinUnescapedComponents(joined, this.delimiter);
-        this.length = joined.length;
+        this.noComponents = joined.length;
     }
     
     private project<T>(fn: (components: string[]) => T, apply: boolean = true): T {
@@ -85,7 +85,7 @@ export class StringName implements Name {
         const result = fn(parts);
         if (apply) {
             this.name = joinUnescapedComponents(parts, this.delimiter);
-            this.length = parts.length;
+            this.noComponents = parts.length;
         }
         
         return result;
