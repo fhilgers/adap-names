@@ -24,7 +24,7 @@ class AsDataStringCommand implements fc.Command<Model, Name> {
     toString = () => `asDataString()`;
     check = (m: Readonly<Model>) => true;
     run(m: Model, r: Name): void {
-        expect(r.asDataString()).toBe(joinUnmaskedComponents(m.components, m.delimiter));
+        expect(r.asDataString()).toBe(joinUnmaskedComponents(m.components, DEFAULT_DELIMITER));
     }
 }
 

@@ -33,13 +33,13 @@ export abstract class AbstractName implements Name {
     public toString(): string {
         this.assertClassInvariants();
 
-        return this.asDataString()
+        return joinUnmaskedComponents(getUnmaskedComponents(this), this.getDelimiterCharacter());
     }
 
     public asDataString(): string {
         this.assertClassInvariants();
 
-        return joinUnmaskedComponents(getUnmaskedComponents(this), this.getDelimiterCharacter());
+        return joinUnmaskedComponents(getUnmaskedComponents(this), DEFAULT_DELIMITER);
     }
 
     public isEqual(other: Name): boolean {
@@ -52,7 +52,7 @@ export abstract class AbstractName implements Name {
     public getHashCode(): number {
         this.assertClassInvariants();
 
-        return getHashCode(this.asDataString() + this.getDelimiterCharacter())
+        return getHashCode(this.toString() + this.getDelimiterCharacter())
     }
 
     public isEmpty(): boolean {
