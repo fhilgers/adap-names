@@ -1,5 +1,6 @@
-import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
-import { Name } from "./Name";
+import { MethodFailedException } from "../../adap-b05/common/MethodFailedException";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { InvalidStateException } from "../common/InvalidStateException";
 import { AbstractName } from "./AbstractName";
 
 export class StringArrayName extends AbstractName {
@@ -7,67 +8,103 @@ export class StringArrayName extends AbstractName {
     protected components: string[] = [];
 
     constructor(other: string[], delimiter?: string) {
-        super();
-        throw new Error("needs implementation");
+        super(delimiter);
+        
+        IllegalArgumentException.assertIsNotNullOrUndefined(other, "other is null or undefined");
+        IllegalArgumentException.assertCondition(other.length > 0, "other must have at least one component");
+        
+        this.components = other.map(c => {
+            this.assertIsMasked(c);
+
+            return this.unmask(c);
+        });
+        
+        this.assertValidConstruction();
+        this.assertClassInvariants();
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation");
+    public override getNoComponents(): number {
+        this.assertClassInvariants();
+        return this.components.length;
     }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
+    public override getComponent(i: number): string {
+        this.assertClassInvariants();
+        this.assertBounds(i, 0, this.getNoComponents());
+        
+        const component = this.mask(this.components[i]);
+        
+        this.assertIsMasked(component, "post");
+
+        return component;
     }
 
-    public toString(): string {
-        throw new Error("needs implementation");
+    public override setComponent(i: number, c: string) {
+        this.assertClassInvariants();
+        
+        this.assertSetComponentWithSnapshotRestore(i, c,
+            () => {
+                const oldComponent = this.components[i];
+                this.components[i] = this.unmask(c);
+                return [ oldComponent ];
+            },
+            (components) => {
+                this.components = components;
+            }
+        );
     }
 
-    public asDataString(): string {
-        throw new Error("needs implementation");
+    public override insert(i: number, c: string) {
+        this.assertClassInvariants();
+        
+        this.assertInsertWithSnapshotRestore(i, c,
+            () => {
+                this.components.splice(i, 0, this.unmask(c));
+                return [ ];
+            },
+            (components) => {
+                this.components = components;
+            }
+        );
     }
 
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation");
+    public override append(c: string) {
+        this.assertClassInvariants();
+        
+        this.assertAppendWithSnapshotRestore(c,
+            () => {
+                this.components.push(this.unmask(c));
+                return [ ];
+            },
+            (components) => {
+                this.components = components;
+            }
+        )
     }
 
-    public getHashCode(): number {
-        throw new Error("needs implementation");
+    public override remove(i: number) {
+        this.assertClassInvariants();
+        
+        this.assertRemoveWithSnapshotRestore(i, 
+            () => {
+                return this.components.splice(i, 1);
+            },
+            (components) => {
+                this.components = components;
+            }
+        );
     }
+    
+    private assertComponentsIsStringArray() {
+        InvalidStateException.assertCondition(this.components instanceof Array, "components is not an array");
 
-    public isEmpty(): boolean {
-        throw new Error("needs implementation");
+        this.components.forEach(c => {
+            InvalidStateException.assertCondition(typeof c == "string", "component is not a string");
+        })
     }
-
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
-    }
-
-    public getNoComponents(): number {
-        throw new Error("needs implementation");
-    }
-
-    public getComponent(i: number): string {
-        throw new Error("needs implementation");
-    }
-
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation");
-    }
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation");
+    
+    protected override assertClassInvariants() {
+        super.assertClassInvariants();
+        this.assertComponentsIsStringArray();
     }
 }
