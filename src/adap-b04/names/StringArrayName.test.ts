@@ -3,7 +3,7 @@ import { StringArrayName } from "./StringArrayName";
 import { expect } from "vitest";
 import { InvalidStateException } from "../common/InvalidStateException";
 import { ESCAPE_CHARACTER } from "../common/Printable";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 
 describe("StringArrayName tests", () => {
     it("preconditions", () => {
@@ -43,7 +43,7 @@ describe("StringArrayName tests", () => {
             return c;
         }
         
-        expect(() => name.getComponent(0)).toThrow(new MethodFailureException("component is not masked"));
+        expect(() => name.getComponent(0)).toThrow(new MethodFailedException("component is not masked"));
     })
     
     it("class invariants", () => {

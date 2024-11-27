@@ -1,5 +1,5 @@
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 import { ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 
@@ -73,7 +73,7 @@ export function mask(component: string, delimiter: string) {
     
     let maskedComponent = collector.join("");
     
-    MethodFailureException.assertCondition(isMasked(maskedComponent, delimiter), "could not mask component");
+    MethodFailedException.assertCondition(isMasked(maskedComponent, delimiter), "could not mask component");
     
     return maskedComponent;
 }
@@ -100,7 +100,7 @@ export function unmask(component: string, delimiter: string) {
     
     let unmaskedComponent = collector.join("");
     
-    //MethodFailureException.assertCondition(isNotMasked(unmaskedComponent, delimiter), "could not unmask component");
+    //MethodFailedException.assertCondition(isNotMasked(unmaskedComponent, delimiter), "could not unmask component");
     
     return unmaskedComponent;
 }

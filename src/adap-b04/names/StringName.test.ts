@@ -3,7 +3,7 @@ import { StringArrayName } from "./StringArrayName";
 import { expect } from "vitest";
 import { InvalidStateException } from "../common/InvalidStateException";
 import { ESCAPE_CHARACTER } from "../common/Printable";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 import { StringName } from "./StringName";
 
 describe("StringArrayName tests", () => {

@@ -82,5 +82,4 @@ export class StringArrayName implements Name {
             throw new Error("index out of bounds")
         }
     }
-
 }
