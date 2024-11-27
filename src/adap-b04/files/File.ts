@@ -28,6 +28,11 @@ export class File extends Node {
         this.assertIsInState(FileState.OPEN);
     }
 
+    public read(noBytes: number): Int8Array {
+        // read something
+        return new Int8Array();
+    }
+
     public close(): void {
         this.assertClassInvariants();
         // I have explicitly opted to check the negatives to provide better error messages
