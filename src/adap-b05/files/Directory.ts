@@ -28,29 +28,16 @@ export class Directory extends Node {
         this.assertClassInvariants()
     }
     
-    public override findNodes(bn: string): Set<Node> {
-        try {
-            // NOTE: I have interpreted this function to traverse only downward into the leaves of the tree akin to tools like find and tree
-            this.assertClassInvariants();
+    protected override findNodesInversion(bn: string, nodes: Set<Node>, seen: Set<Node>) {
+        AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT, !seen.has(this), "invalid file tree, duplicate nodes");
 
-            const nodesList: Node[] = [];
-
-            nodesList.push(...super.findNodes(bn));
-
-            for (const child of this.childNodes) {
-                nodesList.push(...child.findNodes(bn));
+        super.findNodesInversion(bn, nodes, seen);
+        for (const child of this.childNodes) {
+            if (child instanceof Directory) {
+                child.findNodesInversion(bn, nodes, seen);
+            } else {
+                child.findNodes(bn).forEach((n) => nodes.add(n))
             }
-
-            const nodes = new Set(nodesList)
-
-            //this.assertFindNodesPostCondition(nodes, bn);
-            this.assertClassInvariants();
-
-            return nodes;
-        } catch (e) {
-            if (e instanceof ServiceFailureException) throw e
-            else throw new ServiceFailureException("Could not find nodes", e as Exception);
         }
-        
     }
 }

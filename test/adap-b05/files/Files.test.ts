@@ -74,3 +74,55 @@ describe("Buggy setup test", () => {
     expect(threwException).toBe(true);
   });
 });
+
+
+describe("Recursion", () => {
+  it("fails correctly on recursion", () => {
+    let rt = new RootNode();
+
+    let child = new Directory("bin", rt);
+    rt.add(child);
+    child.add(rt);
+    
+    expect(() => rt.findNodes("bin")).toSatisfy((lambda: () => Set<Node>) => {
+      try { 
+        lambda()
+        return false;
+      } catch (e) {
+        expect(e).toBeInstanceOf(ServiceFailureException);
+        const serviceFailureException = e as ServiceFailureException;
+        expect(serviceFailureException.hasTrigger()).toBe(true);
+        const trigger = serviceFailureException.getTrigger();
+        expect(trigger).toBeInstanceOf(InvalidStateException);
+        const invalidStateException = trigger as InvalidStateException;
+        expect(invalidStateException.message).toBe("invalid file tree, duplicate nodes");
+        return true;
+      }
+    })
+  })
+  it("fails correctly on invalid tree with duplicate children", () => {
+    let rt = new RootNode();
+    
+    let childA = new Directory("bin", rt);
+    let childB = new Directory("bun", rt);
+    let child = new File("member", childA);
+    childA.add(child);
+    childB.add(childB);
+
+    expect(() => rt.findNodes("bin")).toSatisfy((lambda: () => Set<Node>) => {
+      try { 
+        lambda()
+        return false;
+      } catch (e) {
+        expect(e).toBeInstanceOf(ServiceFailureException);
+        const serviceFailureException = e as ServiceFailureException;
+        expect(serviceFailureException.hasTrigger()).toBe(true);
+        const trigger = serviceFailureException.getTrigger();
+        expect(trigger).toBeInstanceOf(InvalidStateException);
+        const invalidStateException = trigger as InvalidStateException;
+        expect(invalidStateException.message).toBe("invalid file tree, duplicate nodes");
+        return true;
+      }
+    })
+  })
+})

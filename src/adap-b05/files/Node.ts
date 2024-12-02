@@ -87,14 +87,13 @@ export class Node {
         // It also does not follow links.
         try {
             this.assertClassInvariants();
-
-            let nodes = new Set<Node>();
-
-            if (this.getBaseName() == bn) {
-                nodes.add(this);
-            } 
             
-            //this.assertFindNodesPostCondition(nodes, bn);
+            let nodes = new Set<Node>();
+            let seen = new Set<Node>();
+            
+            this.findNodesInversion(bn, nodes, seen);
+            
+            this.assertFindNodesPostCondition(nodes, bn);
             this.assertClassInvariants();
             
             return nodes;
@@ -102,6 +101,13 @@ export class Node {
             if (e instanceof ServiceFailureException) throw e
             else throw new ServiceFailureException("Could not find nodes", e as Exception);
         }
+    }
+    
+    protected findNodesInversion(bn: string, nodes: Set<Node>, seen: Set<Node>) {
+        seen.add(this);
+        if (this.getBaseName() == bn) {
+            nodes.add(this);
+        } 
     }
 
     protected assertFindNodesPostCondition(nodes: Set<Node>, bn: string) {
