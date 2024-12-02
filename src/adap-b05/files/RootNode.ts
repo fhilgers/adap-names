@@ -3,6 +3,7 @@ import { ExceptionType, AssertionDispatcher } from "../common/AssertionDispatche
 import { Name } from "../names/Name";
 import { StringName } from "../names/StringName";
 import { Directory } from "./Directory";
+import { Node } from "./Node";
 
 export class RootNode extends Directory {
 
@@ -31,6 +32,7 @@ export class RootNode extends Directory {
     protected doSetBaseName(bn: string): void {
         // null operation
     }
+
 
     protected assertIsValidBaseName(bn: string, et: ExceptionType): void {
         const condition: boolean = (bn == ""); // Root must have "" as base name

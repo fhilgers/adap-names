@@ -1,6 +1,7 @@
 import { Node } from "./Node";
 import { Directory } from "./Directory";
 import { MethodFailedException } from "../common/MethodFailedException";
+import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
 
 enum FileState {
     OPEN,
@@ -17,10 +18,19 @@ export class File extends Node {
     }
 
     public open(): void {
-        // do something
+        this.assertClassInvariants();
+        this.assertFileState(ExceptionType.PRECONDITION, FileState.CLOSED);
+        
+        this.doSetFileState(FileState.OPEN);
+        
+        this.assertFileState(ExceptionType.POSTCONDITION, FileState.OPEN);
+        this.assertClassInvariants();
     }
 
     public read(noBytes: number): Int8Array {
+        this.assertClassInvariants();
+        this.assertFileState(ExceptionType.PRECONDITION, FileState.OPEN);
+
         let result: Int8Array = new Int8Array(noBytes);
         // do something
 
@@ -35,6 +45,9 @@ export class File extends Node {
                 }
             }
         }
+        
+        this.assertFileState(ExceptionType.POSTCONDITION, FileState.OPEN);
+        this.assertClassInvariants();
 
         return result;
     }
@@ -44,11 +57,32 @@ export class File extends Node {
     }
 
     public close(): void {
-        // do something
+        this.assertClassInvariants();
+        this.assertFileState(ExceptionType.PRECONDITION, FileState.OPEN);
+        
+        this.doSetFileState(FileState.CLOSED);
+        
+        this.assertFileState(ExceptionType.POSTCONDITION, FileState.CLOSED);
+        this.assertClassInvariants()
     }
 
     protected doGetFileState(): FileState {
         return this.state;
+    }
+
+    protected doSetFileState(state: FileState) {
+        this.state = state;
+    }
+    
+    protected assertFileState(ex: ExceptionType, state: FileState) {
+        AssertionDispatcher.dispatch(ex, state == this.doGetFileState(), `invalid file state: expected ${state}, found ${this.doGetFileState()}`)
+    }
+    
+    protected override assertClassInvariants(): void {
+        super.assertClassInvariants()
+        const state = this.doGetFileState()
+        AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT, 
+                                     state == FileState.CLOSED || state == FileState.DELETED || state == FileState.OPEN, `unknown file state ${state}`)
     }
 
 }
