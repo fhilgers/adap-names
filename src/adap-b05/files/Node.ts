@@ -99,8 +99,8 @@ export class Node {
             
             return nodes;
         } catch (e) {
-            console.log(`failure ${e}`)
-            throw new ServiceFailureException("Could not find nodes", e as Exception);
+            if (e instanceof ServiceFailureException) throw e
+            else throw new ServiceFailureException("Could not find nodes", e as Exception);
         }
     }
 
