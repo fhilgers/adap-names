@@ -1,5 +1,4 @@
-import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
-import { Name } from "./Name";
+import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
 import { AbstractName } from "./AbstractName";
 
 export class StringArrayName extends AbstractName {
@@ -7,63 +6,104 @@ export class StringArrayName extends AbstractName {
     protected components: string[] = [];
 
     constructor(other: string[], delimiter?: string) {
-        super();
-        throw new Error("needs implementation or deletion");
+        super(delimiter);
+        
+        
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, other !== undefined && other !== null, "other is null or undefined");
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, other.length > 0, "other must have at least one component");
+        
+        this.components = other.map(c => {
+            this.assertIsMasked(c);
+
+            return this.unmask(c);
+        });
+        
+        this.assertValidConstruction();
+        this.assertClassInvariants();
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
+    public override getNoComponents(): number {
+        this.assertClassInvariants();
+        return this.components.length;
     }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+    public override getComponent(i: number): string {
+        this.assertClassInvariants();
+        this.assertBounds(i, 0, this.getNoComponents());
+        
+        const component = this.mask(this.components[i]);
+        
+        this.assertIsMasked(component, ExceptionType.POSTCONDITION);
+
+        return component;
     }
 
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+    public override setComponent(i: number, c: string) {
+        this.assertClassInvariants();
+        
+        this.assertSetComponentWithSnapshotRestore(i, c,
+            () => {
+                const oldComponent = this.components[i];
+                this.components[i] = this.unmask(c);
+                return [ oldComponent ];
+            },
+            (components) => {
+                this.components = components;
+            }
+        );
     }
 
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
+    public override insert(i: number, c: string) {
+        this.assertClassInvariants();
+        
+        this.assertInsertWithSnapshotRestore(i, c,
+            () => {
+                this.components.splice(i, 0, this.unmask(c));
+                return [ ];
+            },
+            (components) => {
+                this.components = components;
+            }
+        );
     }
 
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
+    public override append(c: string) {
+        this.assertClassInvariants();
+        
+        this.assertAppendWithSnapshotRestore(c,
+            () => {
+                this.components.push(this.unmask(c));
+                return [ ];
+            },
+            (components) => {
+                this.components = components;
+            }
+        )
     }
 
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
+    public override remove(i: number) {
+        this.assertClassInvariants();
+        
+        this.assertRemoveWithSnapshotRestore(i, 
+            () => {
+                return this.components.splice(i, 1);
+            },
+            (components) => {
+                this.components = components;
+            }
+        );
     }
+    
+    private assertComponentsIsStringArray() {
+        AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT, this.components instanceof Array, "components is not an array");
 
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
+        this.components.forEach(c => {
+            AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT, typeof c == "string", "component is not a string");
+        })
     }
-
-    public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
+    
+    protected override assertClassInvariants() {
+        super.assertClassInvariants();
+        this.assertComponentsIsStringArray();
     }
 }
