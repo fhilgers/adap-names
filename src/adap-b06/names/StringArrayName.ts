@@ -1,3 +1,4 @@
+import { InvalidStateException } from "../common/InvalidStateException";
 import { AbstractName } from "./AbstractName";
 
 export class StringArrayName extends AbstractName {
@@ -10,22 +11,37 @@ export class StringArrayName extends AbstractName {
         throw new Error("Method not implemented.");
     }
     
-    override getNoComponents(): number {
+    protected override doGetNoComponents(): number {
         throw new Error("Method not implemented.");
     }
-    override getComponent(i: number): string {
+    protected override doGetComponent(i: number): string {
         throw new Error("Method not implemented.");
     }
-    override setComponent(i: number, c: string): StringArrayName {
+    protected override doSetComponent(i: number, c: string): StringArrayName {
         throw new Error("Method not implemented.");
     }
-    override insert(i: number, c: string): StringArrayName {
+    protected override doInsert(i: number, c: string): StringArrayName {
         throw new Error("Method not implemented.");
     }
-    override append(c: string): StringArrayName {
+    protected override doAppend(c: string): StringArrayName {
         throw new Error("Method not implemented.");
     }
-    override remove(i: number): StringArrayName {
+    protected override doRemove(i: number): StringArrayName {
         throw new Error("Method not implemented.");
+    }
+    
+    protected override withClassInvariants<T>(func: () => T): T {
+        return super.withClassInvariants(() => {
+            const componentsBefore = this.components;
+            const result = func();
+            
+            InvalidStateException.assert(componentsBefore.length !== this.components.length, `mutated this.components.length: ${componentsBefore.length} !== ${this.components.length}`);
+            
+            for (let i = 0; i < componentsBefore.length; i++) {
+                InvalidStateException.assert(componentsBefore[i] !== this.components[i], `mutated this.components[${i}]: ${componentsBefore[i]} !== ${this.components[i]}`);
+            }
+            
+            return result;
+        });
     }
 }

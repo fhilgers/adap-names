@@ -1,3 +1,4 @@
+import { InvalidStateException } from "../common/InvalidStateException";
 import { DEFAULT_DELIMITER } from "../common/Printable";
 import { Name } from "./Name";
 
@@ -7,6 +8,13 @@ export abstract class AbstractName implements Name {
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
     }
+
+    protected abstract doGetNoComponents(): number;
+    protected abstract doGetComponent(i: number): string;
+    protected abstract doSetComponent(i: number, c: string): AbstractName;
+    protected abstract doInsert(i: number, c: string): AbstractName;
+    protected abstract doAppend(c: string): AbstractName;
+    protected abstract doRemove(i: number): AbstractName;
 
     public clone(): AbstractName {
         throw new Error("TODO")
@@ -37,19 +45,43 @@ export abstract class AbstractName implements Name {
     }
 
     public getDelimiterCharacter(): string {
-        throw new Error("TODO")
+        return this.withClassInvariants(() => this.delimiter)
     }
 
-    abstract getNoComponents(): number;
+    public getNoComponents(): number {
+        return this.withClassInvariants(() => this.doGetNoComponents());
+    }
 
-    abstract getComponent(i: number): string;
-    abstract setComponent(i: number, c: string): AbstractName;
+    public getComponent(i: number): string {
+        return this.withClassInvariants(() => this.doGetComponent(i));
+    }
 
-    abstract insert(i: number, c: string): AbstractName;
-    abstract append(c: string): AbstractName;
-    abstract remove(i: number): AbstractName;
+    public setComponent(i: number, c: string): AbstractName {
+        return this.withClassInvariants(() => this.doSetComponent(i, c));
+    }
+    
+    public insert(i: number, c: string): AbstractName {
+        return this.withClassInvariants(() => this.doInsert(i, c));
+    }
+    
+    public append(c: string): AbstractName {
+        return this.withClassInvariants(() => this.doAppend(c));
+    }
+
+    
+    public remove(i: number) : AbstractName {
+        return this.withClassInvariants(() => this.doRemove(i))
+    }
 
     public concat(other: Name): AbstractName {
         throw new Error("TODO")
+    }
+    
+    protected withClassInvariants<T>(func: () => T): T {
+        let delimiterBefore = this.delimiter;
+        let result = func();
+        InvalidStateException.assert(delimiterBefore !== this.delimiter, `mutated this.delimiter: ${delimiterBefore} !== ${this.delimiter}`);
+        
+        return result;
     }
 }

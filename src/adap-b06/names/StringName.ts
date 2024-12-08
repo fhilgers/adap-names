@@ -1,3 +1,4 @@
+import { InvalidStateException } from "../common/InvalidStateException";
 import { AbstractName } from "./AbstractName";
 
 export class StringName extends AbstractName {
@@ -10,22 +11,35 @@ export class StringName extends AbstractName {
         throw new Error("Method not implemented.");
     }
 
-    override getNoComponents(): number {
+    protected override doGetNoComponents(): number {
         throw new Error("Method not implemented.");
     }
-    override getComponent(i: number): string {
+    protected override doGetComponent(i: number): string {
         throw new Error("Method not implemented.");
     }
-    override setComponent(i: number, c: string): StringName {
+    protected override doSetComponent(i: number, c: string): StringName {
         throw new Error("Method not implemented.");
     }
-    override insert(i: number, c: string): StringName {
+    protected override doInsert(i: number, c: string): StringName {
         throw new Error("Method not implemented.");
     }
-    override append(c: string): StringName {
+    protected override doAppend(c: string): StringName {
         throw new Error("Method not implemented.");
     }
-    override remove(i: number): StringName {
+    protected override doRemove(i: number): StringName {
         throw new Error("Method not implemented.");
+    }
+
+    protected override withClassInvariants<T>(func: () => T): T {
+        return super.withClassInvariants(() => {
+            const nameBefore = this.name;
+            const noComponentsBefore = this.noComponents;
+            const result = func();
+            
+            InvalidStateException.assert(nameBefore !== this.name, `mutated this.name: ${nameBefore} !== ${this.name}`);
+            InvalidStateException.assert(noComponentsBefore !== this.noComponents, `mutated this.noComponents: ${noComponentsBefore} !== ${this.noComponents}`);
+            
+            return result;
+        });
     }
 }
