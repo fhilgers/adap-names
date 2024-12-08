@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 
+
 import { StringName } from "../../../src/adap-b05/names/StringName";
 
 import { Node } from "../../../src/adap-b05/files/Node";
@@ -7,7 +8,7 @@ import { File } from "../../../src/adap-b05/files/File";
 import { BuggyFile } from "../../../src/adap-b05/files/BuggyFile";
 import { Directory } from "../../../src/adap-b05/files/Directory";
 import { RootNode } from "../../../src/adap-b05/files/RootNode";
-import { Exception } from "../common/Exception";
+import { Exception } from "../../../src/adap-b05/common/Exception";
 import { ServiceFailureException } from "../../../src/adap-b05/common/ServiceFailureException";
 import { InvalidStateException } from "../../../src/adap-b05/common/InvalidStateException";
 
@@ -34,7 +35,7 @@ describe("Basic naming test", () => {
   it("test name checking", () => {
     let fs: RootNode = createFileSystem();
     let ls: Node = [...fs.findNodes("ls")][0];
-    expect(ls.getFullName().isEqual(new StringName("/usr/bin/ls", '/')));
+    expect(ls.getFullName().asString()).toBe(new StringName("/usr/bin/ls", '/').asString());
   });
 });
 
@@ -65,11 +66,12 @@ describe("Buggy setup test", () => {
       fs.findNodes("ls");
     } catch(er) {
       threwException = true;
-      let ex: Exception = er as Exception;
-      expect(ex instanceof ServiceFailureException).toBe(true);
+      expect(er).toBeInstanceOf(Exception);
+      expect(er).toBeInstanceOf(ServiceFailureException);
+      let ex = er as ServiceFailureException;
       expect(ex.hasTrigger()).toBe(true);
       let tx: Exception = ex.getTrigger();
-      expect(tx instanceof InvalidStateException).toBe(true);
+      expect(tx).toBeInstanceOf(InvalidStateException);
     }
     expect(threwException).toBe(true);
   });
@@ -81,8 +83,8 @@ describe("Recursion", () => {
     let rt = new RootNode();
 
     let child = new Directory("bin", rt);
-    rt.add(child);
-    child.add(rt);
+    rt.addChildNode(child);
+    child.addChildNode(rt);
     
     expect(() => rt.findNodes("bin")).toSatisfy((lambda: () => Set<Node>) => {
       try { 
@@ -106,8 +108,8 @@ describe("Recursion", () => {
     let childA = new Directory("bin", rt);
     let childB = new Directory("bun", rt);
     let child = new File("member", childA);
-    childA.add(child);
-    childB.add(childB);
+    childA.addChildNode(child);
+    childB.addChildNode(childB);
 
     expect(() => rt.findNodes("bin")).toSatisfy((lambda: () => Set<Node>) => {
       try { 

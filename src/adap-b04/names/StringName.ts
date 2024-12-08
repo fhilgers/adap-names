@@ -7,12 +7,12 @@ export class StringName extends AbstractName {
     protected name: string = "";
     protected noComponents: number = 0;
 
-    constructor(other: string, delimiter?: string) {
+    constructor(source: string, delimiter?: string) {
         super(delimiter);
         
-        IllegalArgumentException.assertIsNotNullOrUndefined(other, "other is null or undefined");
+        IllegalArgumentException.assert(source !== undefined && source !== null, "other is null or undefined");
         
-        const components = splitMaskedComponents(other, this.getDelimiterCharacter());
+        const components = splitMaskedComponents(source, this.getDelimiterCharacter());
 
         this.noComponents = components.length;
         this.name = joinUnmaskedComponents(components, this.getDelimiterCharacter());

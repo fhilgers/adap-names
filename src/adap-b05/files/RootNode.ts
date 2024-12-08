@@ -1,5 +1,6 @@
-import { ExceptionType, AssertionDispatcher } from "../common/AssertionDispatcher";
-
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { InvalidStateException } from "../common/InvalidStateException";
+import { MethodFailedException } from "../common/MethodFailedException";
 import { Name } from "../names/Name";
 import { StringName } from "../names/StringName";
 import { Directory } from "./Directory";
@@ -34,9 +35,9 @@ export class RootNode extends Directory {
     }
 
 
-    protected assertIsValidBaseName(bn: string, et: ExceptionType): void {
+    protected override assertIsValidBaseName(bn: string, ty: "pre" | "post" | "inv"): void {
         const condition: boolean = (bn == ""); // Root must have "" as base name
-        AssertionDispatcher.dispatch(et, condition, "invalid base name");
+        const message = "invalid base name";
+        this.doAssert(ty, condition, message)
     }
-
 }

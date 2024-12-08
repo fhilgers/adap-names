@@ -94,16 +94,16 @@ export abstract class AbstractName implements Name {
     
     protected assertVariant(cond: boolean, message: string, type: "pre" | "post" | "inv" = "pre") {
         if (type === "pre") {
-            InvalidStateException.assertCondition(cond, message);
+            InvalidStateException.assert(cond, message);
         } else if (type === "post") {
-            IllegalArgumentException.assertCondition(cond, message);
+            IllegalArgumentException.assert(cond, message);
         } else if (type === "inv") {
-            InvalidStateException.assertCondition(cond, message);
+            InvalidStateException.assert(cond, message);
         }
     }
 
     protected assertIsMasked(component: string, type: "pre" | "post" | "inv" = "pre") {
-        IllegalArgumentException.assertCondition(type == "pre" || type == "post" || type == "inv", "invalid type");
+        IllegalArgumentException.assert(type == "pre" || type == "post" || type == "inv", "invalid type");
 
         const cond = isMasked(component, this.getDelimiterCharacter());
         const message = "component is not masked";
@@ -112,7 +112,7 @@ export abstract class AbstractName implements Name {
     }
 
     protected assertIsNotMasked(component: string, type: "pre" | "post" | "inv" = "pre") {
-        IllegalArgumentException.assertCondition(type == "pre" || type == "post" || type == "inv", "invalid type");
+        IllegalArgumentException.assert(type == "pre" || type == "post" || type == "inv", "invalid type");
 
         const cond = isNotMasked(component, this.getDelimiterCharacter());
         const message = "component masked";
@@ -123,17 +123,17 @@ export abstract class AbstractName implements Name {
     
     
     protected assertBounds(index: number, left: number, right: number) {
-        IllegalArgumentException.assertCondition(index >= left && index < right, "index out of bounds");
+        IllegalArgumentException.assert(index >= left && index < right, "index out of bounds");
     }
     
     protected assertValidDelimiter(delimiter: string) {
-        InvalidStateException.assertIsNotNullOrUndefined(delimiter, "delimiter is null or undefined");
-        InvalidStateException.assertCondition(this.getDelimiterCharacter().length == 1, "delimiter can only contain a single char");
-        InvalidStateException.assertCondition(this.getDelimiterCharacter() != ESCAPE_CHARACTER, "delimiter can't be the escape character");
+        InvalidStateException.assert(delimiter !== undefined && delimiter !== null, "delimiter is null or undefined");
+        InvalidStateException.assert(this.getDelimiterCharacter().length == 1, "delimiter can only contain a single char");
+        InvalidStateException.assert(this.getDelimiterCharacter() != ESCAPE_CHARACTER, "delimiter can't be the escape character");
     }
     
     protected assertValidConstruction() {
-        MethodFailedException.assertCondition(this.getNoComponents() >= 1, "name must have at least one component after construction");
+        MethodFailedException.assert(this.getNoComponents() >= 1, "name must have at least one component after construction");
     }
     
     protected assertClassInvariants() {
@@ -179,9 +179,9 @@ export abstract class AbstractName implements Name {
         const delta = skip.skipAfter - skip.skipBefore;
         
         try {
-            MethodFailedException.assertCondition(stateSnapshotAfter.noComponents - stateSnapshotBefore.noComponents == delta, `${apply} did not modify the components by ${delta}`);
-            MethodFailedException.assertCondition(listCompare(stateSnapshotBefore.componentsBeforeSplit, stateSnapshotAfter.componentsBeforeSplit), `${apply} did not preserve component order before ${split}`);
-            MethodFailedException.assertCondition(listCompare(stateSnapshotBefore.componentsAfterSplit, stateSnapshotAfter.componentsAfterSplit), `${apply} did not preserve component order after ${split}`);
+            MethodFailedException.assert(stateSnapshotAfter.noComponents - stateSnapshotBefore.noComponents == delta, `${apply} did not modify the components by ${delta}`);
+            MethodFailedException.assert(listCompare(stateSnapshotBefore.componentsBeforeSplit, stateSnapshotAfter.componentsBeforeSplit), `${apply} did not preserve component order before ${split}`);
+            MethodFailedException.assert(listCompare(stateSnapshotBefore.componentsAfterSplit, stateSnapshotAfter.componentsAfterSplit), `${apply} did not preserve component order after ${split}`);
         } catch (e) {
             restore([...stateSnapshotBefore.componentsBeforeSplit, ...res, ...stateSnapshotBefore.componentsAfterSplit]);
             throw e;

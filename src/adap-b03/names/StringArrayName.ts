@@ -6,14 +6,14 @@ export class StringArrayName extends AbstractName {
 
     protected components: string[] = [];
 
-    constructor(other: string[], delimiter?: string) {
+    constructor(source: string[], delimiter?: string) {
         super(delimiter);
 
-        if (other.length == 0) {
+        if (source.length == 0) {
             throw new Error("Empty components not allowed");
         }
 
-        this.components = other.map(c => {
+        this.components = source.map(c => {
             checkValid(c, this.getDelimiterCharacter());
             checkEscaped(c, this.getDelimiterCharacter());
             return unescape(c, this.getDelimiterCharacter());

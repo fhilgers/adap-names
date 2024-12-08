@@ -1,8 +1,7 @@
-import { exit } from "process";
-import { ExceptionType, AssertionDispatcher } from "../common/AssertionDispatcher";
 import { Exception } from "../common/Exception";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { InvalidStateException } from "../common/InvalidStateException";
+import { MethodFailedException } from "../common/MethodFailedException";
 import { ServiceFailureException } from "../common/ServiceFailureException";
 
 import { Name } from "../names/Name";
@@ -24,14 +23,14 @@ export class Node {
 
     protected initialize(pn: Directory): void {
         this.parentNode = pn;
-        this.parentNode.add(this);
+        this.parentNode.addChildNode(this);
     }
 
     public move(to: Directory): void {
         this.assertClassInvariants()
 
-        this.parentNode.remove(this);
-        to.add(this);
+        this.parentNode.removeChildNode(this);
+        to.addChildNode(this);
         this.parentNode = to;
 
         this.assertClassInvariants()
@@ -60,11 +59,11 @@ export class Node {
 
     public rename(bn: string): void {
         this.assertClassInvariants()
-        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION)
+        this.assertIsValidBaseName(bn, "pre")
 
         this.doSetBaseName(bn);
 
-        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, this.doGetBaseName() == bn, "renaming failed")
+        MethodFailedException.assert(this.doGetBaseName() == bn, "renaming failed")
         this.assertClassInvariants()
     }
 
@@ -118,17 +117,23 @@ export class Node {
             return acc
         }, new Set())
 
-        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, invalidNodes.size == 0, `nodes '${[...invalidNodes]}' do not match the basename '${bn}'`)
+        MethodFailedException.assert(invalidNodes.size == 0, `nodes '${[...invalidNodes]}' do not match the basename '${bn}'`)
     }
-
+    
     protected assertClassInvariants(): void {
         const bn: string = this.doGetBaseName();
-        this.assertIsValidBaseName(bn, ExceptionType.CLASS_INVARIANT);
+        this.assertIsValidBaseName(bn, "inv");
     }
 
-    protected assertIsValidBaseName(bn: string, et: ExceptionType): void {
-        const condition: boolean = (bn != "");
-        AssertionDispatcher.dispatch(et, condition, "invalid base name");
+    protected assertIsValidBaseName(bn: string, ty: "pre" | "post" | "inv"): void {
+        this.doAssert(ty, bn != "", "invalid base name")
     }
-
+    
+    protected doAssert(type: "pre" | "post" | "inv", condition: boolean, message: string) {
+        switch (type) {
+            case "pre": return IllegalArgumentException.assert(condition, message);
+            case "post": return MethodFailedException.assert(condition, message);
+            case "inv": return InvalidStateException.assert(condition, message);
+        }
+    }
 }

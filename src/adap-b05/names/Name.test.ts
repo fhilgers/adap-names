@@ -14,9 +14,9 @@ describe("Name tests", () => {
         // We escape . but / is the delimiter, so this should fail
         expect(() => new StringArrayName(["oss", "\\.fau", "\\\\"], "/")).toThrow(new IllegalArgumentException("component is not masked"));
         
-        expect(() => new StringArrayName([])).toThrow(new IllegalArgumentException("other must have at least one component"));
-        expect(() => new StringArrayName(null as any)).toThrow(new IllegalArgumentException("other is null or undefined"));
-        expect(() => new StringArrayName(undefined as any)).toThrow(new IllegalArgumentException("other is null or undefined"));
+        expect(() => new StringArrayName([])).toThrow(new IllegalArgumentException("source must have at least one component"));
+        expect(() => new StringArrayName(null as any)).toThrow(new IllegalArgumentException("source is null or undefined"));
+        expect(() => new StringArrayName(undefined as any)).toThrow(new IllegalArgumentException("source is null or undefined"));
         
         expect(() => new StringArrayName(["abc"], "\\")).toThrow(new IllegalArgumentException("delimiter can't be the escape character"));
         expect(() => new StringArrayName(["abc"], "abc")).toThrow(new IllegalArgumentException("delimiter can only contain a single char"));
