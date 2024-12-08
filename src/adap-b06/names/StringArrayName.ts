@@ -1,5 +1,6 @@
 import { InvalidStateException } from "../common/InvalidStateException";
 import { AbstractName } from "./AbstractName";
+import { Exception } from "./AssertionDispatcher";
 
 export class StringArrayName extends AbstractName {
     
@@ -7,27 +8,41 @@ export class StringArrayName extends AbstractName {
 
     constructor(source: string[], delimiter?: string) {
         super(delimiter);
-
-        throw new Error("Method not implemented.");
+        source.forEach((component) => {
+            this.assertComponentIsMasked(component, Exception.Precondition);
+        });
+        this.components = source;
     }
     
     protected override doGetNoComponents(): number {
-        throw new Error("Method not implemented.");
+        return this.components.length;
     }
     protected override doGetComponent(i: number): string {
-        throw new Error("Method not implemented.");
+        return this.components[i];
     }
+
     protected override doSetComponent(i: number, c: string): StringArrayName {
-        throw new Error("Method not implemented.");
+        const components = [...this.components];
+        components[i] = c;
+
+        return new StringArrayName(components, this.getDelimiterCharacter());
     }
     protected override doInsert(i: number, c: string): StringArrayName {
-        throw new Error("Method not implemented.");
+        const components = [...this.components];
+        components.splice(i, 0, c);
+        
+        return new StringArrayName(components, this.getDelimiterCharacter());
     }
     protected override doAppend(c: string): StringArrayName {
-        throw new Error("Method not implemented.");
+        const components = [...this.components];
+        components.push(c);
+
+        return new StringArrayName(components, this.getDelimiterCharacter());
     }
     protected override doRemove(i: number): StringArrayName {
-        throw new Error("Method not implemented.");
+        const components = [...this.components];
+        components.splice(i, 1);
+        return new StringArrayName(components, this.getDelimiterCharacter());
     }
     
     protected override withClassInvariants<T>(func: () => T): T {
@@ -35,10 +50,10 @@ export class StringArrayName extends AbstractName {
             const componentsBefore = this.components;
             const result = func();
             
-            InvalidStateException.assert(componentsBefore.length !== this.components.length, `mutated this.components.length: ${componentsBefore.length} !== ${this.components.length}`);
+            InvalidStateException.assert(componentsBefore.length === this.components.length, `mutated this.components.length: ${componentsBefore.length} !== ${this.components.length}`);
             
             for (let i = 0; i < componentsBefore.length; i++) {
-                InvalidStateException.assert(componentsBefore[i] !== this.components[i], `mutated this.components[${i}]: ${componentsBefore[i]} !== ${this.components[i]}`);
+                InvalidStateException.assert(componentsBefore[i] === this.components[i], `mutated this.components[${i}]: ${componentsBefore[i]} !== ${this.components[i]}`);
             }
             
             return result;
