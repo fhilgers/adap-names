@@ -1,4 +1,4 @@
-import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { AbstractName } from "./AbstractName";
 import { joinUnmaskedComponents, splitMaskedComponents } from "./Util";
 
@@ -7,12 +7,12 @@ export class StringName extends AbstractName {
     protected name: string = "";
     protected noComponents: number = 0;
 
-    constructor(other: string, delimiter?: string) {
+    constructor(source: string, delimiter?: string) {
         super(delimiter);
         
-        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, other !== undefined && other !== null, "other is null or undefined");
+        IllegalArgumentException.assert(source !== undefined && source !== null, "other is null or undefined");
         
-        const components = splitMaskedComponents(other, this.getDelimiterCharacter());
+        const components = splitMaskedComponents(source, this.getDelimiterCharacter());
 
         this.noComponents = components.length;
         this.name = joinUnmaskedComponents(components, this.getDelimiterCharacter());
@@ -33,7 +33,7 @@ export class StringName extends AbstractName {
             return this.mask(components[i]);
         },);
         
-        this.assertIsMasked(component, ExceptionType.POSTCONDITION);
+        this.assertIsMasked(component, "post");
 
         return component;
     }

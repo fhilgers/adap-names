@@ -1,7 +1,6 @@
 import { Node } from "./Node";
 import { Directory } from "./Directory";
 import { MethodFailedException } from "../common/MethodFailedException";
-import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
 
 enum FileState {
     OPEN,
@@ -19,17 +18,17 @@ export class File extends Node {
 
     public open(): void {
         this.assertClassInvariants();
-        this.assertFileState(ExceptionType.PRECONDITION, FileState.CLOSED);
+        this.assertFileState("pre", FileState.CLOSED);
         
         this.doSetFileState(FileState.OPEN);
         
-        this.assertFileState(ExceptionType.POSTCONDITION, FileState.OPEN);
+        this.assertFileState("post", FileState.OPEN);
         this.assertClassInvariants();
     }
 
     public read(noBytes: number): Int8Array {
         this.assertClassInvariants();
-        this.assertFileState(ExceptionType.PRECONDITION, FileState.OPEN);
+        this.assertFileState("pre", FileState.OPEN);
 
         let result: Int8Array = new Int8Array(noBytes);
         // do something
@@ -46,7 +45,7 @@ export class File extends Node {
             }
         }
         
-        this.assertFileState(ExceptionType.POSTCONDITION, FileState.OPEN);
+        this.assertFileState("post", FileState.OPEN);
         this.assertClassInvariants();
 
         return result;
@@ -58,11 +57,11 @@ export class File extends Node {
 
     public close(): void {
         this.assertClassInvariants();
-        this.assertFileState(ExceptionType.PRECONDITION, FileState.OPEN);
+        this.assertFileState("pre", FileState.OPEN);
         
         this.doSetFileState(FileState.CLOSED);
         
-        this.assertFileState(ExceptionType.POSTCONDITION, FileState.CLOSED);
+        this.assertFileState("post", FileState.CLOSED);
         this.assertClassInvariants()
     }
 
@@ -74,14 +73,14 @@ export class File extends Node {
         this.state = state;
     }
     
-    protected assertFileState(ex: ExceptionType, state: FileState) {
-        AssertionDispatcher.dispatch(ex, state == this.doGetFileState(), `invalid file state: expected ${state}, found ${this.doGetFileState()}`)
+    protected assertFileState(ex: "pre" | "post" | "inv", state: FileState) {
+        this.doAssert(ex, state == this.doGetFileState(), `invalid file state: expected ${state}, found ${this.doGetFileState()}`)
     }
     
     protected override assertClassInvariants(): void {
         super.assertClassInvariants()
         const state = this.doGetFileState()
-        AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT, 
+        this.doAssert("inv", 
                                      state == FileState.CLOSED || state == FileState.DELETED || state == FileState.OPEN, `unknown file state ${state}`)
     }
 

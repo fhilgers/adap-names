@@ -1,18 +1,18 @@
-import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { AbstractName } from "./AbstractName";
 
 export class StringArrayName extends AbstractName {
 
     protected components: string[] = [];
 
-    constructor(other: string[], delimiter?: string) {
+    constructor(source: string[], delimiter?: string) {
         super(delimiter);
         
         
-        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, other !== undefined && other !== null, "other is null or undefined");
-        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, other.length > 0, "other must have at least one component");
+        IllegalArgumentException.assert(source !== undefined && source !== null, "source is null or undefined");
+        IllegalArgumentException.assert(source.length > 0, "source must have at least one component");
         
-        this.components = other.map(c => {
+        this.components = source.map(c => {
             this.assertIsMasked(c);
 
             return this.unmask(c);
@@ -33,7 +33,7 @@ export class StringArrayName extends AbstractName {
         
         const component = this.mask(this.components[i]);
         
-        this.assertIsMasked(component, ExceptionType.POSTCONDITION);
+        this.assertIsMasked(component, "post");
 
         return component;
     }
@@ -95,10 +95,10 @@ export class StringArrayName extends AbstractName {
     }
     
     private assertComponentsIsStringArray() {
-        AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT, this.components instanceof Array, "components is not an array");
+        this.doAssert("inv", this.components instanceof Array, "components is not an array");
 
         this.components.forEach(c => {
-            AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT, typeof c == "string", "component is not a string");
+            this.doAssert("inv", typeof c == "string", "component is not a string");
         })
     }
     

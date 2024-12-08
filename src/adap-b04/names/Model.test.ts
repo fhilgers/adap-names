@@ -5,7 +5,6 @@ import { describe, expect } from "vitest";
 import { listCompare, mask, getHashCode, getUnmaskedComponents, isMasked, joinUnmaskedComponents, unmask } from "./Util";
 import { StringName } from "./StringName";
 import { StringArrayName } from "./StringArrayName";
-import { Arbitrary } from "fast-check";
 
 type Model = {
     delimiter: string,

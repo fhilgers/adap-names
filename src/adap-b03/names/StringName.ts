@@ -6,10 +6,10 @@ export class StringName extends AbstractName {
     protected name: string = "";
     protected noComponents: number = 0;
 
-    constructor(other: string, delimiter?: string) {
+    constructor(source: string, delimiter?: string) {
         super(delimiter);
         
-        const parts = splitEscapedComponents(other, this.getDelimiterCharacter());
+        const parts = splitEscapedComponents(source, this.getDelimiterCharacter());
         this.noComponents = parts.length;
         this.name = joinUnescapedComponents(parts, this.getDelimiterCharacter());
     }

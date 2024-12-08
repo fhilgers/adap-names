@@ -1,4 +1,3 @@
-import { MethodFailedException } from "../../adap-b05/common/MethodFailedException";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { InvalidStateException } from "../common/InvalidStateException";
 import { AbstractName } from "./AbstractName";
@@ -7,13 +6,13 @@ export class StringArrayName extends AbstractName {
 
     protected components: string[] = [];
 
-    constructor(other: string[], delimiter?: string) {
+    constructor(source: string[], delimiter?: string) {
         super(delimiter);
         
-        IllegalArgumentException.assertIsNotNullOrUndefined(other, "other is null or undefined");
-        IllegalArgumentException.assertCondition(other.length > 0, "other must have at least one component");
+        IllegalArgumentException.assert(source !== undefined && source !== null, "other is null or undefined");
+        IllegalArgumentException.assert(source.length > 0, "other must have at least one component");
         
-        this.components = other.map(c => {
+        this.components = source.map(c => {
             this.assertIsMasked(c);
 
             return this.unmask(c);
@@ -96,10 +95,10 @@ export class StringArrayName extends AbstractName {
     }
     
     private assertComponentsIsStringArray() {
-        InvalidStateException.assertCondition(this.components instanceof Array, "components is not an array");
+        InvalidStateException.assert(this.components instanceof Array, "components is not an array");
 
         this.components.forEach(c => {
-            InvalidStateException.assertCondition(typeof c == "string", "component is not a string");
+            InvalidStateException.assert(typeof c == "string", "component is not a string");
         })
     }
     

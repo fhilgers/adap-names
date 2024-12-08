@@ -8,10 +8,10 @@ export class StringName implements Name {
     protected name: string = "";
     protected noComponents: number = 0;
 
-    constructor(other: string, delimiter?: string) {
+    constructor(source: string, delimiter?: string) {
         this.delimiter = delimiter || this.delimiter;
         
-        const parts = splitEscapedComponents(other, this.delimiter);
+        const parts = splitEscapedComponents(source, this.delimiter);
         this.noComponents = parts.length;
         this.name = joinUnescapedComponents(parts, this.delimiter);
     }

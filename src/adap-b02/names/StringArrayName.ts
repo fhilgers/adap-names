@@ -7,13 +7,13 @@ export class StringArrayName implements Name {
     protected delimiter: string = DEFAULT_DELIMITER;
     protected components: string[] = [];
 
-    constructor(other: string[], delimiter?: string) {
-        if (other.length == 0) {
+    constructor(source: string[], delimiter?: string) {
+        if (source.length == 0) {
             throw new Error("Empty components not allowed");
         }
 
         this.delimiter = delimiter || this.delimiter;
-        this.components = other.map(c => {
+        this.components = source.map(c => {
             checkValid(c, this.delimiter);
             checkEscaped(c, this.delimiter);
             return unescape(c, this.delimiter);

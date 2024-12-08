@@ -1,6 +1,5 @@
 import { Node } from "./Node";
 import { Directory } from "./Directory";
-import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
 
 export class Link extends Node {
 
@@ -34,7 +33,7 @@ export class Link extends Node {
         const target = this.ensureTargetNode(this.targetNode);
         const baseName = target.getBaseName()
         
-        this.assertIsValidBaseName(baseName, ExceptionType.POSTCONDITION);
+        this.assertIsValidBaseName(baseName, "post");
         this.assertClassInvariants()
 
         return baseName;
@@ -42,12 +41,12 @@ export class Link extends Node {
 
     public rename(bn: string): void {
         this.assertClassInvariants()
-        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
+        this.assertIsValidBaseName(bn, "pre");
 
         const target = this.ensureTargetNode(this.targetNode);
         target.rename(bn);
         
-        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, target.getBaseName() == bn, "failed to rename");
+        this.doAssert("post", target.getBaseName() == bn, "failed to rename");
         this.assertClassInvariants()
     }
 

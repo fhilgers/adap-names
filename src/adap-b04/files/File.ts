@@ -54,16 +54,16 @@ export class File extends Node {
 
     protected assertIsNotInState(states: FileState[]) {
         for (const state of states) {
-            InvalidStateException.assertCondition(this.doGetFileState() !== state, `file is ${this.doGetFileState()}`);
+            InvalidStateException.assert(this.doGetFileState() !== state, `file is ${this.doGetFileState()}`);
         }
     }
     
     protected assertIsInState(state: FileState) {
-        InvalidStateException.assertCondition(this.doGetFileState() === state, `file should be ${state} but is ${this.doGetFileState()}`);
+        InvalidStateException.assert(this.doGetFileState() === state, `file should be ${state} but is ${this.doGetFileState()}`);
     }
     
     protected assertClassInvariants() {
-        InvalidStateException.assertCondition(
+        InvalidStateException.assert(
             this.doGetFileState() == FileState.CLOSED || this.doGetFileState() == FileState.OPEN || this.doGetFileState() == FileState.DELETED,
             `file is in unknown state ${this.doGetFileState()}`
         );

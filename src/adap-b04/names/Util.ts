@@ -73,13 +73,13 @@ export function mask(component: string, delimiter: string) {
     
     let maskedComponent = collector.join("");
     
-    MethodFailedException.assertCondition(isMasked(maskedComponent, delimiter), "could not mask component");
+    MethodFailedException.assert(isMasked(maskedComponent, delimiter), "could not mask component");
     
     return maskedComponent;
 }
 
 export function unmask(component: string, delimiter: string) {
-    IllegalArgumentException.assertCondition(isMasked(component, delimiter), "component is not masked");
+    IllegalArgumentException.assert(isMasked(component, delimiter), "component is not masked");
 
     const collector = [];
     

@@ -1,4 +1,6 @@
-import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { InvalidStateException } from "../common/InvalidStateException";
+import { MethodFailedException } from "../common/MethodFailedException";
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { getHashCode, getUnmaskedComponents, isMasked, isNotMasked, joinUnmaskedComponents, listCompare, mask, unmask } from "./Util";
@@ -90,33 +92,33 @@ export abstract class AbstractName implements Name {
         return unmask(component, this.getDelimiterCharacter());
     }
     
-    protected assertIsMasked(component: string, type: ExceptionType = ExceptionType.PRECONDITION) {
+    protected assertIsMasked(component: string, type: "pre" | "post" | "inv" = "pre") {
         const cond = isMasked(component, this.getDelimiterCharacter());
         const message = "component is not masked";
         
-        AssertionDispatcher.dispatch(type, cond, message);
+        this.doAssert(type, cond, message);
     }
 
-    protected assertIsNotMasked(component: string, type: ExceptionType) {
+    protected assertIsNotMasked(component: string, type: "pre" | "post" | "inv") {
 
         const cond = isNotMasked(component, this.getDelimiterCharacter());
         const message = "component masked";
         
-        AssertionDispatcher.dispatch(type, cond, message);
+        this.doAssert(type, cond, message);
     }
     
     protected assertBounds(index: number, left: number, right: number) {
-        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, index >= left && index < right, "index out of bounds");
+        this.doAssert("pre", index >= left && index < right, "index out of bounds");
     }
     
     protected assertValidDelimiter(delimiter: string) {
-        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, delimiter !== undefined && delimiter !== null, "delimiter is null or undefined");
-        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, this.getDelimiterCharacter().length == 1, "delimiter can only contain a single char");
-        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, this.getDelimiterCharacter() != ESCAPE_CHARACTER, "delimiter can't be the escape character");
+        this.doAssert("post", delimiter !== undefined && delimiter !== null, "delimiter is null or undefined");
+        this.doAssert("post", this.getDelimiterCharacter().length == 1, "delimiter can only contain a single char");
+        this.doAssert("post", this.getDelimiterCharacter() != ESCAPE_CHARACTER, "delimiter can't be the escape character");
     }
     
     protected assertValidConstruction() {
-        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, this.getNoComponents() >= 1, "name must have at least one component after construction");
+        this.doAssert("post", this.getNoComponents() >= 1, "name must have at least one component after construction");
     }
     
     protected assertClassInvariants() {
@@ -162,12 +164,20 @@ export abstract class AbstractName implements Name {
         const delta = skip.skipAfter - skip.skipBefore;
         
         try {
-            AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, stateSnapshotAfter.noComponents - stateSnapshotBefore.noComponents == delta, `${apply} did not modify the components by ${delta}`);
-            AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, listCompare(stateSnapshotBefore.componentsBeforeSplit, stateSnapshotAfter.componentsBeforeSplit), `${apply} did not preserve component order before ${split}`);
-            AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, listCompare(stateSnapshotBefore.componentsAfterSplit, stateSnapshotAfter.componentsAfterSplit), `${apply} did not preserve component order after ${split}`);
+            this.doAssert("post", stateSnapshotAfter.noComponents - stateSnapshotBefore.noComponents == delta, `${apply} did not modify the components by ${delta}`);
+            this.doAssert("post", listCompare(stateSnapshotBefore.componentsBeforeSplit, stateSnapshotAfter.componentsBeforeSplit), `${apply} did not preserve component order before ${split}`);
+            this.doAssert("post", listCompare(stateSnapshotBefore.componentsAfterSplit, stateSnapshotAfter.componentsAfterSplit), `${apply} did not preserve component order after ${split}`);
         } catch (e) {
             restore([...stateSnapshotBefore.componentsBeforeSplit, ...res, ...stateSnapshotBefore.componentsAfterSplit]);
             throw e;
+        }
+    }
+    
+    protected doAssert(type: "pre" | "post" | "inv", condition: boolean, message: string) {
+        switch (type) {
+            case "pre": return IllegalArgumentException.assert(condition, message);
+            case "post": return MethodFailedException.assert(condition, message);
+            case "inv": return InvalidStateException.assert(condition, message);
         }
     }
 
